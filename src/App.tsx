@@ -8,7 +8,7 @@ import { readExcelFile, isZipFile, extractExcelFromZip,extractMemberStatistics, 
 import type { MemberStatistic } from './utils/excelUtils'
 import { fetchPlayerSheet, findRbSetting } from './utils/playerNames'
 import type { PlayerSheetData } from './utils/playerNames'
-import { OWNER_RAKEBACK, isDefaultOwner } from './types'
+import { OWNER_RAKEBACK } from './types'
 import type { AgentInput, AgentRow, NicknameWithLine } from './types'
 
 /**
@@ -155,9 +155,9 @@ function App() {
       const stats = extractMemberStatistics(wb)
       setMemberStatistics(stats)
       setNicknames(stats.filter(isActiveMember).map(({ nickname }): NicknameWithLine => {
-        // The "rb" column decides owner / rakeback; when it is blank the default owners still apply
+        // The "rb" column decides owner / rakeback
         const rbSetting = sheet ? findRbSetting(sheet.rbSettings, nickname) : undefined
-        if (rbSetting?.owner || (!rbSetting && isDefaultOwner(nickname))) {
+        if (rbSetting?.owner) {
           return { nickname, line: undefined, rakeback: OWNER_RAKEBACK, owner: true }
         }
         return { nickname, line: undefined, rakeback: rbSetting?.rakeback }

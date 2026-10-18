@@ -1,8 +1,7 @@
 import * as XLSX from 'xlsx';
 import ExcelJS from 'exceljs';
 import JSZip from 'jszip';
-import type { AgentInput, NicknameWithLine, OwnerAccountGroup } from '../types';
-import { OWNER_ACCOUNT_GROUPS } from '../types';
+import type { AgentInput, NicknameWithLine } from '../types';
 import { findRealName } from './playerNames';
 
 /**
@@ -330,8 +329,6 @@ export const findPlayersMissingFromBalance = (
  * - Adds "Profit/Loss" column (chips - line if line exists, otherwise just chips, plus rakeback)
  * - Owners are left out of the main table and put in an owners table to the right of it
  *   ("Rake share" = Netto Rake / number of owners, "Rb+rake" = Rake + Rake share, "Ny Saldo" = Profit/Loss + Rake share).
- *   An owner with several accounts (OWNER_ACCOUNT_GROUPS) counts as one owner: his rake share is split between
- *   his accounts, and a total row (Rake, Profit/Loss, Rake share, Rb+rake) is added below them.
  * - Agents and players whose agent (in "Member Statistics") is one of the entered agents are left out
  *   of the main and owners tables and put in a table per agent to the right of the stats table.
  *   Their Profit/Loss is the total player P&L from "Member Statistics" (line and rakeback are ignored).
@@ -368,8 +365,6 @@ export const filterWorkbookByNicknames = (
   const positiveData: any[][] = [];
   const negativeData: any[][] = [];
   const ownerData: unknown[][] = [];
-  // Owner rows that are one of several accounts of the same owner
-  const ownerRowGroups = new Map<unknown[], OwnerAccountGroup>();
   let bruttoRake = 0;
   let totalRakeback = 0;
 
@@ -442,12 +437,7 @@ export const filterWorkbookByNicknames = (
 
     if (matchingNickname.owner) {
       // Rake share, Rb+rake and Ny Saldo are filled in once the netto rake is known
-      const ownerRow = [displayName, realName, lineAmount, chipsDisplay, rake, profitLoss, '', '', '', '', '', '', ''];
-      ownerData.push(ownerRow);
-      const group = OWNER_ACCOUNT_GROUPS.find(g =>
-        g.accounts.some(account => sameName(account, matchingNickname.nickname) || sameName(account, displayName))
-      );
-      if (group) ownerRowGroups.set(ownerRow, group);
+      ownerData.push([displayName, realName, lineAmount, chipsDisplay, rake, profitLoss, '', '', '', '', '', '', '']);
       return;
     }
 
@@ -566,44 +556,16 @@ export const filterWorkbookByNicknames = (
 
   const nettoRake = bruttoRake - totalRakeback - extraExpenses - totalAgentRakeback;
 
-  // Owners table to the right of the main table: the netto rake is split evenly between the owners,
-  // where an owner with several accounts counts once and his share is split between his accounts
-  const accountsByGroup = new Map<OwnerAccountGroup, unknown[][]>();
-  ownerData.forEach(row => {
-    const group = ownerRowGroups.get(row);
-    if (group) accountsByGroup.set(group, [...(accountsByGroup.get(group) ?? []), row]);
-  });
-  const ownerCount = ownerData.length - ownerRowGroups.size + accountsByGroup.size;
-  const rakeShare = ownerCount > 0 ? round2(nettoRake / ownerCount) : 0;
+  // Owners table to the right of the main table: the netto rake is split evenly between the owners
+  const rakeShare = ownerData.length > 0 ? round2(nettoRake / ownerData.length) : 0;
   const ownerRakeIndex = 4;
   ownerData.forEach(row => {
-    const group = ownerRowGroups.get(row);
-    const accountRakeShare = group ? round2(rakeShare / accountsByGroup.get(group)!.length) : rakeShare;
-    row[6] = accountRakeShare;
+    row[6] = rakeShare;
     // Owners get all of their own rake back, on top of their share of the netto rake
-    row[7] = round2(Number(row[ownerRakeIndex]) + accountRakeShare);
-    row[8] = round2(Number(row[ownerProfitLossIndex]) + accountRakeShare);
+    row[7] = round2(Number(row[ownerRakeIndex]) + rakeShare);
+    row[8] = round2(Number(row[ownerProfitLossIndex]) + rakeShare);
   });
-
-  // Accounts of the same owner are kept together, followed by a total row when more than one is present
-  const ownerTableRows: unknown[][] = [];
-  const placedGroups = new Set<OwnerAccountGroup>();
-  ownerData.forEach(row => {
-    const group = ownerRowGroups.get(row);
-    if (!group) {
-      ownerTableRows.push(row);
-      return;
-    }
-    if (placedGroups.has(group)) return;
-    placedGroups.add(group);
-    const accounts = accountsByGroup.get(group)!;
-    ownerTableRows.push(...accounts);
-    if (accounts.length > 1) {
-      const sum = (index: number) => round2(accounts.reduce((total, account) => total + Number(account[index]), 0));
-      ownerTableRows.push([group.name, '', '', '', sum(ownerRakeIndex), sum(ownerProfitLossIndex), rakeShare, sum(7), '', '', '', '', '']);
-    }
-  });
-  placeTable([OWNERS_TABLE_HEADERS, ...ownerTableRows], OWNERS_TABLE_COLUMN_INDEX);
+  placeTable([OWNERS_TABLE_HEADERS, ...ownerData], OWNERS_TABLE_COLUMN_INDEX);
 
   // Stats table to the right of the owners table
   placeTable([
@@ -795,9 +757,6 @@ export const downloadExcelFile = async (workbook: XLSX.WorkBook, filename: strin
             pattern: 'solid',
             fgColor: { argb: 'FFE0E7FF' }
           };
-        } else if (OWNER_ACCOUNT_GROUPS.some(group => group.name === cellText(rowIndex, OWNERS_TABLE_COLUMN_INDEX))) {
-          // Total row of an owner with several accounts
-          cell.font = { bold: true };
         }
       }
       // Stats table to the right of the owners table

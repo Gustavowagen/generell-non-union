@@ -16,7 +16,7 @@
  *
  * Columns: A = real name, B = nickname, C = rb (blank, a rakeback like "25%", or "owner"); row 1 is the header.
  *
- * Response: [{ "name": "Tage Tveit", "nickname": "Finnfettfinger", "rb": "owner" }, ...]
+ * Response: [{ "name": "Ola Nordmann", "nickname": "player123", "rb": "owner" }, ...]
  */
 
 const SHEET_NAME = 'navn + nick';
