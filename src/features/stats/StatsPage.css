@@ -1,25 +1,90 @@
-/* Statistics page: light cards on a soft background, with the app's purple accents */
+/* Statistics page: cards on a soft neutral background; ink for active controls, steel blue for links.
+   All colours are variables so the dark theme can redefine them. */
 
 .stats-page {
+  --stats-bg: #f4f5f7;
+  --stats-surface: #ffffff;
+  --stats-border: #e8eaf2;
+  --stats-shadow: 0 2px 8px rgba(31, 41, 55, 0.04);
   --stats-ink: #1f2937;
   --stats-ink-soft: #4b5563;
   --stats-muted: #6b7280;
   --stats-line: #e5e7eb;
   --stats-line-soft: #f0f1f5;
-  --stats-accent: #667eea;
-  --stats-accent-2: #764ba2;
+  --stats-line-strong: #c7cad4;
+  --stats-input-border: #d1d5db;
+  --stats-active: #1f2937;
+  --stats-active-ink: #ffffff;
+  --stats-accent: #3b6ea5;
+  --stats-accent-dark: #2c5482;
+  --stats-focus-ring: rgba(59, 110, 165, 0.15);
+  --stats-hover: #f3f5f8;
+  --stats-selected: #e9edf2;
+  --stats-badge-bg: #eceff3;
+  --stats-badge-ink: #374151;
+  --stats-demo-bg: #fef3c7;
+  --stats-demo-ink: #92400e;
+  --stats-tooltip-bg: #1f2937;
+  --stats-tooltip-ink: #f9fafb;
+  --stats-tooltip-soft: #e5e7eb;
   --stats-positive: #0f8a63;
   --stats-negative: #c93c3c;
-
+  /* Chart marks */
+  --stats-nlh: #3b6ea5;
+  --stats-plo5: #d9822b;
+  --stats-bar-positive: #16a37f;
+  --stats-bar-negative: #dc4c4c;
+  --stats-inline-bar: #a7b4c4;
+  --stats-heat-empty: #f1f2f7;
   position: relative;
   width: 100%;
   padding: 2.5rem 2rem;
-  background: #f6f7fb;
+  background: var(--stats-bg);
   border-radius: 24px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   color: var(--stats-ink);
   text-align: left;
+  transition: background-color 0.2s ease, color 0.2s ease;
   animation: fadeIn 0.5s ease-in;
+}
+
+/* Dark theme: its own steps, checked against the dark card surface */
+.stats-page[data-theme='dark'] {
+  --stats-bg: #111418;
+  --stats-surface: #1a1e24;
+  --stats-border: #2a3038;
+  --stats-shadow: none;
+  --stats-ink: #e6e8eb;
+  --stats-ink-soft: #b3b9c2;
+  --stats-muted: #8b939e;
+  --stats-line: #2d333b;
+  --stats-line-soft: #232830;
+  --stats-line-strong: #4a525d;
+  --stats-input-border: #3a414b;
+  --stats-active: #e6e8eb;
+  --stats-active-ink: #111418;
+  --stats-accent: #7aa7d9;
+  --stats-accent-dark: #a3c3e6;
+  --stats-focus-ring: rgba(122, 167, 217, 0.25);
+  --stats-hover: #222831;
+  --stats-selected: #2a313b;
+  --stats-badge-bg: #2a3038;
+  --stats-badge-ink: #c9ced6;
+  --stats-demo-bg: #3d3115;
+  --stats-demo-ink: #f3cf7a;
+  --stats-tooltip-bg: #e6e8eb;
+  --stats-tooltip-ink: #111418;
+  --stats-tooltip-soft: #374151;
+  --stats-positive: #3ccf9b;
+  --stats-negative: #f07a7a;
+  --stats-nlh: #5b8fd0;
+  --stats-plo5: #c98236;
+  --stats-bar-positive: #22a273;
+  --stats-bar-negative: #e05d5d;
+  --stats-inline-bar: #55616f;
+  --stats-heat-empty: #232830;
+
+  color-scheme: dark;
 }
 
 .stats-page button:focus:not(:focus-visible) {
@@ -48,7 +113,7 @@
 }
 
 .stats-page:fullscreen::backdrop {
-  background: #f6f7fb;
+  background: var(--stats-bg);
 }
 
 .stats-page.fullscreen .stats-inner {
@@ -112,7 +177,7 @@
 .stats-segmented {
   display: inline-flex;
   padding: 3px;
-  background: #ffffff;
+  background: var(--stats-surface);
   border: 1px solid var(--stats-line);
   border-radius: 999px;
 }
@@ -132,23 +197,25 @@
 }
 
 .stats-segmented button.active {
-  background: linear-gradient(135deg, var(--stats-accent) 0%, var(--stats-accent-2) 100%);
-  color: #ffffff;
+  background: var(--stats-active);
+  color: var(--stats-active-ink);
 }
 
-.stats-fullscreen-button {
+.stats-fullscreen-button,
+.stats-theme-button {
   padding: 0.55rem 1.1rem;
   font-size: 0.9rem;
   font-weight: 600;
   border: 1px solid var(--stats-line);
   border-radius: 10px;
-  background: #ffffff;
+  background: var(--stats-surface);
   color: var(--stats-ink);
 }
 
-.stats-fullscreen-button:hover {
-  border-color: var(--stats-accent);
-  color: var(--stats-accent);
+.stats-fullscreen-button:hover,
+.stats-theme-button:hover {
+  border-color: var(--stats-line-strong);
+  background: var(--stats-hover);
   transform: none;
 }
 
@@ -191,9 +258,9 @@
   left: 0.5rem;
   right: 0.5rem;
   bottom: 0;
-  height: 3px;
-  border-radius: 3px 3px 0 0;
-  background: linear-gradient(135deg, var(--stats-accent) 0%, var(--stats-accent-2) 100%);
+  height: 2px;
+  border-radius: 2px 2px 0 0;
+  background: var(--stats-active);
 }
 
 .stats-tab {
@@ -208,10 +275,10 @@
 .stats-card {
   min-width: 0;
   padding: 1.25rem 1.4rem;
-  background: #ffffff;
-  border: 1px solid #e8eaf2;
+  background: var(--stats-surface);
+  border: 1px solid var(--stats-border);
   border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(31, 41, 55, 0.04);
+  box-shadow: var(--stats-shadow);
 }
 
 .stats-card-title {
@@ -244,10 +311,10 @@
   flex-direction: column;
   gap: 0.15rem;
   padding: 1rem 1.1rem;
-  background: #ffffff;
-  border: 1px solid #e8eaf2;
+  background: var(--stats-surface);
+  border: 1px solid var(--stats-border);
   border-radius: 14px;
-  box-shadow: 0 2px 8px rgba(31, 41, 55, 0.04);
+  box-shadow: var(--stats-shadow);
 }
 
 .stats-kpi-label {
@@ -290,14 +357,14 @@
   line-height: 1.6;
   vertical-align: middle;
   border-radius: 999px;
-  background: #eef0fb;
-  color: #4c51bf;
+  background: var(--stats-badge-bg);
+  color: var(--stats-badge-ink);
 }
 
 .stats-badge-demo {
   margin-left: 0.6rem;
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--stats-demo-bg);
+  color: var(--stats-demo-ink);
 }
 
 .stats-empty,
@@ -332,9 +399,9 @@
   padding: 0.55rem 0.8rem;
   font-family: inherit;
   font-size: 0.95rem;
-  border: 2px solid #d1d5db;
+  border: 2px solid var(--stats-input-border);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--stats-surface);
   color: var(--stats-ink);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -342,7 +409,7 @@
 .stats-input:focus {
   outline: none;
   border-color: var(--stats-accent);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+  box-shadow: 0 0 0 3px var(--stats-focus-ring);
 }
 
 .stats-checkbox {
@@ -385,7 +452,7 @@
 
 .stats-link:hover {
   transform: none;
-  color: var(--stats-accent-2);
+  color: var(--stats-accent-dark);
 }
 
 /* ---------------------------------------------------------------- tables */
@@ -406,7 +473,7 @@
   top: 0;
   z-index: 1;
   padding: 0;
-  background: #ffffff;
+  background: var(--stats-surface);
   border-bottom: 2px solid var(--stats-line);
   text-align: left;
 }
@@ -444,7 +511,7 @@
 .stats-sort-arrow {
   min-width: 0.6rem;
   font-size: 0.6rem;
-  color: var(--stats-accent);
+  color: var(--stats-ink-soft);
 }
 
 .stats-table td {
@@ -459,11 +526,11 @@
 }
 
 .stats-table tr.clickable:hover td {
-  background: #f5f6fe;
+  background: var(--stats-hover);
 }
 
 .stats-table tr.selected td {
-  background: #eef0fb;
+  background: var(--stats-selected);
   font-weight: 600;
 }
 
@@ -485,8 +552,7 @@
   max-width: 6rem;
   height: 6px;
   border-radius: 3px;
-  background: linear-gradient(135deg, var(--stats-accent) 0%, var(--stats-accent-2) 100%);
-  opacity: 0.55;
+  background: var(--stats-inline-bar);
 }
 
 .stats-facts {
@@ -532,12 +598,12 @@
 }
 
 .stats-baseline {
-  stroke: #c7cad4;
+  stroke: var(--stats-line-strong);
   stroke-width: 1;
 }
 
 .stats-crosshair {
-  stroke: #9ca3af;
+  stroke: var(--stats-muted);
   stroke-dasharray: 3 3;
 }
 
@@ -559,8 +625,8 @@
   white-space: nowrap;
   font-size: 0.8rem;
   font-variant-numeric: tabular-nums;
-  background: #1f2937;
-  color: #f9fafb;
+  background: var(--stats-tooltip-bg);
+  color: var(--stats-tooltip-ink);
   border-radius: 8px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
 }
@@ -569,7 +635,7 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  color: #e5e7eb;
+  color: var(--stats-tooltip-soft);
 }
 
 .stats-legend {
@@ -616,7 +682,7 @@
 
 .stats-barlist-row:hover:not(:disabled) {
   transform: none;
-  background: #f5f6fe;
+  background: var(--stats-hover);
 }
 
 .stats-barlist-row:disabled {
@@ -667,7 +733,7 @@
 
 .stats-diverging-half.negative {
   justify-content: flex-end;
-  border-right: 1px solid #c7cad4;
+  border-right: 1px solid var(--stats-line-strong);
 }
 
 .stats-diverging-half.negative .stats-barlist-bar {
@@ -694,7 +760,7 @@
   aspect-ratio: 1;
   min-height: 12px;
   border-radius: 3px;
-  background: #f1f2f7;
+  background: var(--stats-heat-empty);
 }
 
 .stats-heatmap-cell.hovered {

@@ -1,10 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { MouseEvent, ReactNode } from 'react'
 import { fmtShort } from '../format'
-import { SERIES_COLORS } from '../colors'
-
-const POSITIVE_COLOR = '#16a37f'
-const NEGATIVE_COLOR = '#dc4c4c'
+import { NEGATIVE_COLOR, POSITIVE_COLOR, SERIES_COLORS } from '../colors'
 
 /** Width of an element in pixels, kept up to date when it resizes */
 const useWidth = <T extends HTMLElement>() => {
@@ -114,8 +111,8 @@ export function ColumnChart({ labels, series, values, formatValue, height = 240 
                   // 2px gap between stacked segments
                   const h = Math.max(0, y0 - y1 - (s === 0 ? 0 : 2))
                   return s === lastIndex
-                    ? <path key={s} d={topRoundedBar(x, y1, barW, h, 4)} fill={series[s].color} opacity={hover === null || hover === i ? 1 : 0.45} pointerEvents="none" />
-                    : <rect key={s} x={x} y={y1} width={barW} height={h} fill={series[s].color} opacity={hover === null || hover === i ? 1 : 0.45} pointerEvents="none" />
+                    ? <path key={s} d={topRoundedBar(x, y1, barW, h, 4)} style={{ fill: series[s].color }} opacity={hover === null || hover === i ? 1 : 0.45} pointerEvents="none" />
+                    : <rect key={s} x={x} y={y1} width={barW} height={h} style={{ fill: series[s].color }} opacity={hover === null || hover === i ? 1 : 0.45} pointerEvents="none" />
                 })}
                 <text className="stats-axis-label" x={x + barW / 2} y={height - 8} textAnchor="middle">{label}</text>
               </g>
@@ -186,9 +183,9 @@ export function LineChart({ points, height = 260 }: { points: LinePoint[]; heigh
             <text key={i} className="stats-axis-label" x={x(i)} y={height - 8} textAnchor="middle">{p.label}</text>
           ))}
           {hover !== null && <line className="stats-crosshair" x1={x(hover)} x2={x(hover)} y1={margin.top} y2={margin.top + innerH} />}
-          <polyline fill="none" stroke={lineColor} strokeWidth={2} strokeLinejoin="round" points={points.map((p, i) => `${x(i)},${y(p.value)}`).join(' ')} />
-          {hover !== null && <circle cx={x(hover)} cy={y(points[hover].value)} r={5} fill={lineColor} stroke="#fff" strokeWidth={2} />}
-          <circle cx={x(points.length - 1)} cy={y(last.value)} r={4} fill={lineColor} />
+          <polyline fill="none" style={{ stroke: lineColor }} strokeWidth={2} strokeLinejoin="round" points={points.map((p, i) => `${x(i)},${y(p.value)}`).join(' ')} />
+          {hover !== null && <circle cx={x(hover)} cy={y(points[hover].value)} r={5} style={{ fill: lineColor, stroke: 'var(--stats-surface)' }} strokeWidth={2} />}
+          <circle cx={x(points.length - 1)} cy={y(last.value)} r={4} style={{ fill: lineColor }} />
         </svg>
       )}
       {hover !== null && (
@@ -291,7 +288,7 @@ export function Heatmap({ rowLabels, columnLabels, values, formatTooltip, labelE
               <span
                 key={column}
                 className={`stats-heatmap-cell ${hover?.row === row && hover.column === column ? 'hovered' : ''}`}
-                style={{ background: value > 0 ? `rgba(90, 103, 216, ${0.15 + 0.85 * (value / max)})` : undefined }}
+                style={{ background: value > 0 ? `color-mix(in srgb, var(--stats-nlh) ${Math.round(15 + 85 * (value / max))}%, var(--stats-surface))` : undefined }}
                 onMouseEnter={() => setHover({ row, column })}
               />
             ))}

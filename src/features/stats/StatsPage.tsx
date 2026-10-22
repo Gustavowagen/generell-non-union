@@ -11,6 +11,20 @@ import AgentsTab from './tabs/AgentsTab'
 import TournamentTab from './tabs/TournamentTab'
 
 type Tab = 'overview' | 'players' | 'profile' | 'agents' | 'tournament'
+type Theme = 'light' | 'dark'
+
+const THEME_STORAGE_KEY = 'stats-theme'
+
+/** The saved choice, or the system setting the first time */
+const initialTheme = (): Theme => {
+  try {
+    const saved = localStorage.getItem(THEME_STORAGE_KEY)
+    if (saved === 'light' || saved === 'dark') return saved
+  } catch {
+    // Storage can be blocked (private window); fall back to the system setting
+  }
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'overview', label: 'Overview' },
@@ -30,6 +44,7 @@ export default function StatsPage({ hidden }: StatsPageProps) {
   const [tab, setTab] = useState<Tab>('overview')
   const [tz, setTz] = useState<ClockZone>('oslo')
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [theme, setTheme] = useState<Theme>(initialTheme)
 
   const totals = useMemo(() => weekTotals(data.members, data.sessions), [data])
   const days = useMemo(() => data.sessions.map(s => s.start.slice(0, 10)).sort(), [data])
@@ -53,6 +68,16 @@ export default function StatsPage({ hidden }: StatsPageProps) {
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
   }, [isFullscreen])
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, next)
+    } catch {
+      // Not saved; the switch still works for this visit
+    }
+  }
 
   const toggleFullscreen = async () => {
     const page = pageRef.current
@@ -83,7 +108,7 @@ export default function StatsPage({ hidden }: StatsPageProps) {
   }
 
   return (
-    <div ref={pageRef} className={`stats-page ${isFullscreen ? 'fullscreen' : ''}`} hidden={hidden}>
+    <div ref={pageRef} className={`stats-page ${isFullscreen ? 'fullscreen' : ''}`} data-theme={theme} hidden={hidden}>
       <div className="stats-inner">
         <header className="stats-header">
           <div className="stats-header-text">
@@ -102,6 +127,9 @@ export default function StatsPage({ hidden }: StatsPageProps) {
               <button type="button" className={tz === 'oslo' ? 'active' : ''} onClick={() => setTz('oslo')}>Oslo time</button>
               <button type="button" className={tz === 'club' ? 'active' : ''} onClick={() => setTz('club')}>Export time (UTC−7)</button>
             </div>
+            <button type="button" className="stats-theme-button" onClick={toggleTheme} aria-pressed={theme === 'dark'}>
+              {theme === 'dark' ? '☀ Light mode' : '☾ Dark mode'}
+            </button>
             <button type="button" className="stats-fullscreen-button" onClick={toggleFullscreen}>
               {isFullscreen ? '✕ Exit full screen' : '⛶ Full screen'}
             </button>

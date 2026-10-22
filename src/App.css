@@ -43,15 +43,19 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
+.view-switch button:focus:not(:focus-visible) {
+  outline: none;
+}
+
 .view-switch button:hover {
   transform: none;
   color: #ffffff;
 }
 
 .view-switch button.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  background: #ffffff;
+  color: #1f2937;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes fadeIn {
