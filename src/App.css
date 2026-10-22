@@ -18,6 +18,42 @@
   animation: fadeIn 0.5s ease-in;
 }
 
+.app-container[hidden] {
+  display: none;
+}
+
+.view-switch {
+  display: flex;
+  width: fit-content;
+  margin: 0 auto 1.25rem;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  backdrop-filter: blur(10px);
+}
+
+.view-switch button {
+  padding: 0.55rem 1.6rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.view-switch button:hover {
+  transform: none;
+  color: #ffffff;
+}
+
+.view-switch button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -79,6 +115,8 @@
 }
 
 .download-section {
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;

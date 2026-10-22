@@ -586,7 +586,11 @@ export const filterWorkbookByNicknames = (
 /**
  * Generate and download Excel file with styling
  */
-export const downloadExcelFile = async (workbook: XLSX.WorkBook, filename: string): Promise<void> => {
+/**
+ * Build the styled ExcelJS workbook (borders, bold headers, column widths) from the filtered workbook.
+ * Used both for the download and for the in-page spreadsheet preview.
+ */
+export const buildStyledWorkbook = (workbook: XLSX.WorkBook): ExcelJS.Workbook => {
   // Create a new ExcelJS workbook
   const excelWorkbook = new ExcelJS.Workbook();
   
@@ -825,7 +829,16 @@ export const downloadExcelFile = async (workbook: XLSX.WorkBook, filename: strin
   agentTables.forEach(t => {
     excelWorksheet.mergeCells(1, t.columnNumber, 1, t.columnNumber + AGENT_TABLE_HEADERS.length - 1);
   });
-  
+
+  return excelWorkbook;
+};
+
+/**
+ * Download the filtered workbook as a styled .xlsx file
+ */
+export const downloadExcelFile = async (workbook: XLSX.WorkBook, filename: string): Promise<void> => {
+  const excelWorkbook = buildStyledWorkbook(workbook);
+
   // Generate Excel file
   const buffer = await excelWorkbook.xlsx.writeBuffer();
   const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });

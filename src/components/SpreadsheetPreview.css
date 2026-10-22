@@ -1,0 +1,159 @@
+.spreadsheet-preview {
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.spreadsheet-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.copy-all-button {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.copy-all-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+}
+
+.spreadsheet-hint {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.copy-message {
+  color: #10b981;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.spreadsheet-formula-bar {
+  display: flex;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+  font-size: 0.9rem;
+  color: #111827;
+  min-height: 1.8rem;
+}
+
+.spreadsheet-cell-name {
+  min-width: 6rem;
+  padding: 0.25rem 0.5rem;
+  border-right: 1px solid #d1d5db;
+  color: #374151;
+}
+
+.spreadsheet-cell-value {
+  padding: 0.25rem 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spreadsheet-grid {
+  max-height: 70vh;
+  overflow: auto;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  outline: none;
+  user-select: none;
+}
+
+.spreadsheet-grid:focus-visible {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.5);
+}
+
+.spreadsheet-grid table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: max-content;
+  font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+  font-size: 11pt;
+  color: #000000;
+}
+
+.spreadsheet-grid th {
+  position: sticky;
+  background: #f3f4f6;
+  color: #4b5563;
+  font-weight: 400;
+  font-size: 0.8rem;
+  border: 1px solid #d1d5db;
+  padding: 0 0.25rem;
+  height: 1.4rem;
+  text-align: center;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.spreadsheet-grid thead th {
+  top: 0;
+  z-index: 2;
+}
+
+.spreadsheet-grid tbody th {
+  left: 0;
+}
+
+.spreadsheet-grid th.spreadsheet-corner {
+  left: 0;
+  z-index: 3;
+}
+
+.spreadsheet-grid th.header-active {
+  background: #e0e7ff;
+  color: #3730a3;
+  font-weight: 600;
+}
+
+.spreadsheet-grid td {
+  position: relative;
+  border: 1px solid #edeef0;
+  padding: 0 0.3rem;
+  height: 1.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: cell;
+  background: #ffffff;
+}
+
+.spreadsheet-grid td.cell-border {
+  border: 1px solid #000000;
+}
+
+.spreadsheet-grid td.cell-number {
+  text-align: right;
+}
+
+.spreadsheet-grid td.cell-selected::after,
+.spreadsheet-grid td.cell-focus::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(102, 126, 234, 0.18);
+  pointer-events: none;
+}
+
+.spreadsheet-grid td.cell-focus::after {
+  box-shadow: inset 0 0 0 2px #667eea;
+}

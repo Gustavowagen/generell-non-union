@@ -4,7 +4,9 @@ import './App.css'
 import FileUpload from './components/FileUpload'
 import NicknameInput from './components/NicknameInput'
 import ParticlesBackground from './components/ParticlesBackground'
-import { readExcelFile, isZipFile, extractExcelFromZip,extractMemberStatistics, isActiveMember, findAgentMembers, findPlayersMissingFromBalance, filterWorkbookByNicknames, downloadExcelFile } from './utils/excelUtils'
+import SpreadsheetPreview from './components/SpreadsheetPreview'
+import StatsPage from './features/stats/StatsPage'
+import { readExcelFile, isZipFile, extractExcelFromZip,extractMemberStatistics, isActiveMember, findAgentMembers, findPlayersMissingFromBalance, filterWorkbookByNicknames, buildStyledWorkbook, downloadExcelFile } from './utils/excelUtils'
 import type { MemberStatistic } from './utils/excelUtils'
 import { fetchPlayerSheet, findRbSetting } from './utils/playerNames'
 import type { PlayerSheetData } from './utils/playerNames'
@@ -46,7 +48,10 @@ const parseAgents = (rows: AgentRow[]): { agents: AgentInput[]; invalidIds: Set<
   return { agents, invalidIds }
 }
 
+type View = 'machine' | 'stats'
+
 function App() {
+  const [view, setView] = useState<View>('machine')
   const [file, setFile] = useState<File | null>(null)
   const [workbook, setWorkbook] = useState<XLSX.WorkBook | null>(null)
   const [filteredWorkbook, setFilteredWorkbook] = useState<XLSX.WorkBook | null>(null)
@@ -66,6 +71,12 @@ function App() {
   const extraExpenses = parseOptionalNumber(extraExpensesText)
   const { agents, invalidIds: invalidAgentIds } = parseAgents(agentRows)
   const inputInvalid = extraExpenses === undefined || invalidAgentIds.size > 0
+
+  // Styled sheet shown in the in-page spreadsheet, same styling as the downloaded file
+  const previewWorksheet = useMemo(
+    () => (filteredWorkbook ? buildStyledWorkbook(filteredWorkbook).worksheets[0] : undefined),
+    [filteredWorkbook]
+  )
 
   // Memoize ParticlesBackground to prevent re-renders
   const particles = useMemo(() => <ParticlesBackground />, []);
@@ -207,7 +218,16 @@ function App() {
   return (
     <>
       {particles}
-      <div className="app-container">
+      <nav className="view-switch" aria-label="Page">
+        <button type="button" className={view === 'machine' ? 'active' : ''} onClick={() => setView('machine')}>
+          Machine
+        </button>
+        <button type="button" className={view === 'stats' ? 'active' : ''} onClick={() => setView('stats')}>
+          Statistics
+        </button>
+      </nav>
+      {/* Both views stay mounted, so switching never loses an uploaded file or entered players */}
+      <div className="app-container" hidden={view !== 'machine'}>
         <h1>Excel Nickname Filter</h1>
         
         <FileUpload 
@@ -301,9 +321,11 @@ function App() {
             >
               Filter Again
             </button>
+            {previewWorksheet && <SpreadsheetPreview worksheet={previewWorksheet} />}
           </div>
         )}
       </div>
+      <StatsPage hidden={view !== 'stats'} />
     </>
   )
 }
